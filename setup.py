@@ -8,7 +8,7 @@ setup(
     description="Australian IPND Client",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    version="0.0.1",
+    version="0.0.2",
     url="https://github.com/Divoli/ipnd",
     author="Devoli",
     author_email="dev@devoli.com",
