@@ -10,5 +10,7 @@ htmlcov/
 .cache/
 .idea
 .pytest_cache/
+.tox
 
 notes.txt
+release.sh

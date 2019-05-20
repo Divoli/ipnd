@@ -1,14 +1,19 @@
 # Australian IPND (Integrated Public Number Database) Client
 
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
+
+
 This is a python 3 port of [xrobau/ipnd](https://github.com/xrobau/ipnd)
 
 Many thanks to this author!~
 
 Licenced under the AGPLv3.
 
-```
-    pip install au-ipnd
+You can install this module via pip:
 
+
+```
+pip install au-ipnd
 ```
 
 
@@ -60,7 +65,6 @@ for num, entity in nums:
 output = i.generate_to_string()
 
 print(output)
-
 
 ```
 

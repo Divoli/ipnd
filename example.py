@@ -5,7 +5,9 @@ person.set_name("Herp L. Derpinson", "Mr")
 person.set_contactnum("0402000000")
 
 business = record.Business()
-business.set_name("Extremely Long Name Pty Ltd, Trading as Stupidly Long Name Incorporated")
+business.set_name(
+    "Extremely Long Name Pty Ltd, Trading as Stupidly Long Name Incorporated"
+)
 business.set_contactnum("0402000000")
 
 address = record.HouseAddress()

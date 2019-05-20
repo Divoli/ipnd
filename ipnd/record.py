@@ -16,13 +16,22 @@ class BaseRecord:
         Flatten child (and grandchild) records
         :param records:
         """
-        items = [[r.get_records() if isinstance(r, MultipleRecord) else r for r in record.get_records()]
-                 if isinstance(record, MultipleRecord) else [record] for record in records]
+        items = [
+            [
+                r.get_records() if isinstance(r, MultipleRecord) else r
+                for r in record.get_records()
+            ]
+            if isinstance(record, MultipleRecord)
+            else [record]
+            for record in records
+        ]
 
         return list(flatten(items))
 
     def generate_as_dict(self):
-        records = self.flatten(self.get_records() if isinstance(self, MultipleRecord) else [self])
+        records = self.flatten(
+            self.get_records() if isinstance(self, MultipleRecord) else [self]
+        )
 
         return [record.format_as_dict() for record in records]
 
@@ -30,31 +39,34 @@ class BaseRecord:
         return {
             "type": "N" if isinstance(self, NumericRecord) else "X",
             "size": self.size,
-            "value": self.value
+            "value": self.value,
         }
 
     def generate(self):
-        records = self.flatten(self.get_records() if isinstance(self, MultipleRecord) else [self])
+        records = self.flatten(
+            self.get_records() if isinstance(self, MultipleRecord) else [self]
+        )
 
         return [record.format() for record in records]
 
 
 class NumericRecord:
-
     def format(self):
         output = str(self.value).rjust(self.size, "0")
 
         if len(output) > self.size:
             raise Exception(
-                "{} Col is larger than size - {} > {} for {}".format(self, len(output), self.size, self.value))
+                "{} Col is larger than size - {} > {} for {}".format(
+                    self, len(output), self.size, self.value
+                )
+            )
 
         return output
 
 
 class AlphaRecord:
-
     def format(self):
-        return str(self.value)[0:self.size].ljust(self.size, " ")
+        return str(self.value)[0 : self.size].ljust(self.size, " ")
 
 
 class SingleRecord(BaseRecord):
@@ -65,7 +77,6 @@ class SingleRecord(BaseRecord):
 
 
 class MultipleRecord(SingleRecord):
-
     def get_records(self):
         raise NotImplementedError()
 
@@ -86,7 +97,6 @@ class ServiceStatusCode(SingleRecord, AlphaRecord):
 
 class UsageCode(SingleRecord, AlphaRecord):
     size = 1
-
 
 
 class PendingFlag(SingleRecord, AlphaRecord):
@@ -122,7 +132,6 @@ class CustomerContactNum(SingleRecord, AlphaRecord):
 
 
 class CustomerName(MultipleRecord):
-
     def get_records(self):
         if self.value.is_business():
             # Note this is 5.1, 5.2, and 5.3
@@ -134,7 +143,9 @@ class CustomerName(MultipleRecord):
         # It's a person. We return Surname first, then Given and then extended
         return [
             CustomerSurnameRecord(self.value.surname),
-            CustomerFirstLongNameRecord("{} {}".format(self.value.firstname, self.value.longname)),
+            CustomerFirstLongNameRecord(
+                "{} {}".format(self.value.firstname, self.value.longname)
+            ),
             CustomerTitleRecord(self.value.title),
         ]
 
@@ -156,7 +167,6 @@ class BuildingSuffix(SingleRecord, AlphaRecord):
 
 
 class NumAndSuffixMixin:
-
     @classmethod
     def get_num_and_suffix(cls, val):
 
@@ -173,17 +183,22 @@ class NumAndSuffixMixin:
 
 
 class BuildingSubUnit(MultipleRecord, NumAndSuffixMixin):
-
     def __init__(self, building_type=None, street_no_start=None, street_no_end=None):
         self.building_type = BuildingType(value=building_type)
 
         num, suffix = self.get_num_and_suffix(street_no_start)
 
-        self.building_num_1, self.building_suffix_1 = BuildingNum(num), BuildingSuffix(suffix)
+        self.building_num_1, self.building_suffix_1 = (
+            BuildingNum(num),
+            BuildingSuffix(suffix),
+        )
 
         num, suffix = self.get_num_and_suffix(street_no_end)
 
-        self.building_num_2, self.building_suffix_2 = BuildingNum(num), BuildingSuffix(suffix)
+        self.building_num_2, self.building_suffix_2 = (
+            BuildingNum(num),
+            BuildingSuffix(suffix),
+        )
 
     def get_records(self):
         return [
@@ -208,7 +223,6 @@ class HouseSuffixSecondary(SingleRecord, AlphaRecord):
 
 
 class HouseNumberSubunit(MultipleRecord, NumAndSuffixMixin):
-
     def __init__(self, house_no=None, secondary_no=None):
         num, suffix = self.get_num_and_suffix(house_no)
 
@@ -216,7 +230,10 @@ class HouseNumberSubunit(MultipleRecord, NumAndSuffixMixin):
 
         num, suffix = self.get_num_and_suffix(secondary_no)
 
-        self.house_num_2, self.house_suffix_2 = HouseNum(num), HouseSuffixSecondary(suffix)
+        self.house_num_2, self.house_suffix_2 = (
+            HouseNum(num),
+            HouseSuffixSecondary(suffix),
+        )
 
     def get_records(self):
         return [
@@ -248,7 +265,6 @@ class BuildingFloorSuffix(SingleRecord, AlphaRecord):
 
 
 class BuildingFloor(MultipleRecord):
-
     def __init__(self, floor=None, floor_type="FL"):
 
         if not floor:
@@ -270,11 +286,7 @@ class BuildingFloor(MultipleRecord):
 
     def get_records(self):
 
-        return [
-            self.floor_type,
-            self.floor_num,
-            self.floor_suffix,
-        ]
+        return [self.floor_type, self.floor_num, self.floor_suffix]
 
 
 class BuildingProperty(SingleRecord, AlphaRecord):
@@ -306,7 +318,6 @@ class StreetSuffixSecondary(SingleRecord, AlphaRecord):
 
 
 class StreetAddress(MultipleRecord):
-
     def __init__(self, street_name=None, street_type=None, street_suffix=None):
         self.street_name = StreetName(street_name)
         self.street_type = StreetType(street_type)
@@ -341,23 +352,16 @@ class Postcode(SingleRecord, NumericRecord):
 
 
 class ServiceLocality(MultipleRecord):
-
     def __init__(self, state=None, postcode=None, locality=None):
         self.state = State(state)
         self.postcode = Postcode(postcode)
         self.locality = Locality(locality)
 
     def get_records(self):
-        return [
-            self.state,
-            self.locality,
-            self.postcode,
-
-        ]
+        return [self.state, self.locality, self.postcode]
 
 
 class Address(MultipleRecord):
-
     def __init__(self):
         self.building_subunit = BuildingSubUnit()
         self.building_floor = BuildingFloor()
@@ -371,10 +375,14 @@ class Address(MultipleRecord):
         raise ValidationError("Not House or Building")
 
     def set_street_name(self, name: str, type: str, suffix: str = ""):
-        self.street_address = StreetAddress(street_name=name, street_type=type, street_suffix=suffix)
+        self.street_address = StreetAddress(
+            street_name=name, street_type=type, street_suffix=suffix
+        )
 
     def set_locality(self, postcode: str, locality: str, state: str = None):
-        self.service_locality = ServiceLocality(postcode=postcode, locality=locality, state=state)
+        self.service_locality = ServiceLocality(
+            postcode=postcode, locality=locality, state=state
+        )
 
     def get_records(self):
         return [
@@ -384,19 +392,16 @@ class Address(MultipleRecord):
             self.building_location,
             self.house_number_subunit,
             self.street_address,
-            self.service_locality
-
+            self.service_locality,
         ]
 
 
 class HouseAddress(Address):
-
     def set_street_number(self, no: str):
         self.house_number_subunit = HouseNumberSubunit(house_no=no)
 
 
 class BuildingAddress(Address):
-
     def set_street_number(self, no: str):
         self.building_subunit = BuildingSubUnit(street_no=no)
 
@@ -408,8 +413,10 @@ class BaseAddress(Address):
     def get_records(self):
         return self.address.get_records()
 
+
 class DirectoryAddress(BaseAddress):
     pass
+
 
 class ServiceAddress(BaseAddress):
     pass
@@ -428,25 +435,19 @@ class FindingTitle(SingleRecord, AlphaRecord):
 
 
 class FindingName(MultipleRecord):
-
     def __init__(self, entity):
         self.entity = entity
 
     def get_records(self):
         if self.entity.is_business():
-            return [
-                BusinessRawnameRecord(self.entity.rawname),
-                FindingTitle()
-            ]
+            return [BusinessRawnameRecord(self.entity.rawname), FindingTitle()]
 
         else:
             return [
                 CustomerSurnameRecord(self.entity.surname),
                 CustomFirstName(self.entity.firstname),
-                CustomerTitleRecord(self.entity.title)
+                CustomerTitleRecord(self.entity.title),
             ]
-
-
 
 
 class ListCode(SingleRecord, AlphaRecord):
@@ -462,7 +463,6 @@ class TypeOfService(SingleRecord, AlphaRecord):
 
 
 class CustomerContact(MultipleRecord):
-
     def __init__(self, entity):
         self.entity = entity
 
@@ -493,7 +493,7 @@ class DateRecord(SingleRecord, NumericRecord):
 
     def __init__(self, value=None):
         value = value if value else datetime.now()
-        value = value.strftime('%Y%m%d%H%M%S')
+        value = value.strftime("%Y%m%d%H%M%S")
         super().__init__(value=value)
 
 
@@ -517,7 +517,7 @@ class PriorPublicNumber(SingleRecord, AlphaRecord):
 
 
 class Entity:
-    type: str = 'NA'
+    type: str = "NA"
     title: str = ""
     rawname: str = ""
     firstname: str = ""
@@ -584,7 +584,6 @@ class Charity(Entity):
 
 
 class HeaderFooterBase:
-
     def __init__(self, source: str, seq: int, date=None):
 
         if seq < 1:
@@ -633,7 +632,6 @@ class HeaderPad(SingleRecord, AlphaRecord):
 
 
 class Header(HeaderFooterBase, MultipleRecord):
-
     def get_records(self):
         return [
             Hdr(),
@@ -641,7 +639,7 @@ class Header(HeaderFooterBase, MultipleRecord):
             Source(self.source),
             Sequence(self.seq),
             Date(self.date),
-            HeaderPad()
+            HeaderPad(),
         ]
 
 
@@ -661,7 +659,6 @@ class FooterPad(SingleRecord, AlphaRecord):
 
 
 class Footer(HeaderFooterBase, MultipleRecord):
-
     def __init__(self, source: str, seq: int, count: int, date=None):
         super().__init__(source=source, seq=seq, date=date)
 
@@ -678,7 +675,7 @@ class Footer(HeaderFooterBase, MultipleRecord):
             Sequence(self.seq),
             Date(self.date),
             Count(self.count),
-            FooterPad()
+            FooterPad(),
         ]
 
 
@@ -701,7 +698,7 @@ class Transaction(MultipleRecord):
         TransactionDate: 15,
         ServiceStatusDate: 16,
         AlternateAddressFlag: 17,
-        PriorPublicNumber: 18
+        PriorPublicNumber: 18,
     }
 
     def __init__(self):

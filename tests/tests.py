@@ -8,7 +8,6 @@ from ipnd.utils import flatten
 
 
 class BaseTests(TestCase):
-
     @staticmethod
     def dump(data):
         pprint.pprint(data)
@@ -58,29 +57,20 @@ class IpndTransactionEntryTests(BaseTests):
 
         result = item.generate_as_dict()
 
-        self.assertListEqual(result,
-                             [
-                                 {
-                                     "type": "X",
-                                     "size": 40,
-                                     "value": "Derpinson"
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 120,
-                                     "value": "Herp L."
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 12,
-                                     "value": "Mr"
-                                 }
-                             ]
-                             )
+        self.assertListEqual(
+            result,
+            [
+                {"type": "X", "size": 40, "value": "Derpinson"},
+                {"type": "X", "size": 120, "value": "Herp L."},
+                {"type": "X", "size": 12, "value": "Mr"},
+            ],
+        )
 
     def test_customer_name_business(self):
         entity = record.Business()
-        entity.set_name("Extremely Long Name Pty Ltd, Trading as Stupidly Long Name Incorporated")
+        entity.set_name(
+            "Extremely Long Name Pty Ltd, Trading as Stupidly Long Name Incorporated"
+        )
         entity.set_contactnum("0402000000")
 
         item = record.CustomerName(entity)
@@ -92,20 +82,17 @@ class IpndTransactionEntryTests(BaseTests):
 
         result = item.generate_as_dict()
 
-        self.assertListEqual(result,
-                             [
-                                 {
-                                     "type": "X",
-                                     "size": 160,
-                                     "value": "Extremely Long Name Pty Ltd, Trading as Stupidly Long Name Incorporated"
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 12,
-                                     "value": ""
-                                 }
-                             ]
-                             )
+        self.assertListEqual(
+            result,
+            [
+                {
+                    "type": "X",
+                    "size": 160,
+                    "value": "Extremely Long Name Pty Ltd, Trading as Stupidly Long Name Incorporated",
+                },
+                {"type": "X", "size": 12, "value": ""},
+            ],
+        )
 
     def test_service_address_building_subunit_default(self):
         item = record.BuildingSubUnit()
@@ -116,38 +103,19 @@ class IpndTransactionEntryTests(BaseTests):
 
         self.assertListEqual(
             result,
-
             [
-                {
-                    "type": "X",
-                    "size": 6,
-                    "value": ""
-                },
-                {
-                    "type": "X",
-                    "size": 5,
-                    "value": ""
-                },
-                {
-                    "type": "X",
-                    "size": 1,
-                    "value": ""
-                },
-                {
-                    "type": "X",
-                    "size": 5,
-                    "value": ""
-                },
-                {
-                    "type": "X",
-                    "size": 1,
-                    "value": ""
-                }
-            ]
+                {"type": "X", "size": 6, "value": ""},
+                {"type": "X", "size": 5, "value": ""},
+                {"type": "X", "size": 1, "value": ""},
+                {"type": "X", "size": 5, "value": ""},
+                {"type": "X", "size": 1, "value": ""},
+            ],
         )
 
     def test_service_address_building_subunit(self):
-        item = record.BuildingSubUnit(building_type="APT", street_no_start="50a", street_no_end="100")
+        item = record.BuildingSubUnit(
+            building_type="APT", street_no_start="50a", street_no_end="100"
+        )
 
         records = item.get_records()
 
@@ -161,32 +129,12 @@ class IpndTransactionEntryTests(BaseTests):
         self.assertListEqual(
             result,
             [
-                {
-                    "type": "X",
-                    "size": 6,
-                    "value": "APT"
-                },
-                {
-                    "type": "X",
-                    "size": 5,
-                    "value": 50
-                },
-                {
-                    "type": "X",
-                    "size": 1,
-                    "value": "a"
-                },
-                {
-                    "type": "X",
-                    "size": 5,
-                    "value": 100
-                },
-                {
-                    "type": "X",
-                    "size": 1,
-                    "value": ""
-                }
-            ]
+                {"type": "X", "size": 6, "value": "APT"},
+                {"type": "X", "size": 5, "value": 50},
+                {"type": "X", "size": 1, "value": "a"},
+                {"type": "X", "size": 5, "value": 100},
+                {"type": "X", "size": 1, "value": ""},
+            ],
         )
 
     def test_service_address_building_floor_default(self):
@@ -204,22 +152,10 @@ class IpndTransactionEntryTests(BaseTests):
         self.assertListEqual(
             result,
             [
-                {
-                    "type": "X",
-                    "size": 2,
-                    "value": ""
-                },
-                {
-                    "type": "X",
-                    "size": 4,
-                    "value": ""
-                },
-                {
-                    "type": "X",
-                    "size": 1,
-                    "value": ""
-                }
-            ]
+                {"type": "X", "size": 2, "value": ""},
+                {"type": "X", "size": 4, "value": ""},
+                {"type": "X", "size": 1, "value": ""},
+            ],
         )
 
     def test_service_address_building_floor(self):
@@ -237,22 +173,10 @@ class IpndTransactionEntryTests(BaseTests):
         self.assertListEqual(
             result,
             [
-                {
-                    "type": "X",
-                    "size": 2,
-                    "value": "L"
-                },
-                {
-                    "type": "X",
-                    "size": 4,
-                    "value": 5
-                },
-                {
-                    "type": "X",
-                    "size": 1,
-                    "value": "a"
-                }
-            ]
+                {"type": "X", "size": 2, "value": "L"},
+                {"type": "X", "size": 4, "value": 5},
+                {"type": "X", "size": 1, "value": "a"},
+            ],
         )
 
     def test_service_address_house_number_subunit_default(self):
@@ -270,27 +194,11 @@ class IpndTransactionEntryTests(BaseTests):
         self.assertListEqual(
             result,
             [
-                {
-                    "type": "X",
-                    "size": 5,
-                    "value": ""
-                },
-                {
-                    "type": "X",
-                    "size": 3,
-                    "value": ""
-                },
-                {
-                    "type": "X",
-                    "size": 5,
-                    "value": ""
-                },
-                {
-                    "type": "X",
-                    "size": 1,
-                    "value": ""
-                }
-            ]
+                {"type": "X", "size": 5, "value": ""},
+                {"type": "X", "size": 3, "value": ""},
+                {"type": "X", "size": 5, "value": ""},
+                {"type": "X", "size": 1, "value": ""},
+            ],
         )
 
     def test_service_address_house_number_subunit(self):
@@ -308,31 +216,17 @@ class IpndTransactionEntryTests(BaseTests):
         self.assertListEqual(
             result,
             [
-                {
-                    "type": "X",
-                    "size": 5,
-                    "value": 50
-                },
-                {
-                    "type": "X",
-                    "size": 3,
-                    "value": "a"
-                },
-                {
-                    "type": "X",
-                    "size": 5,
-                    "value": ""
-                },
-                {
-                    "type": "X",
-                    "size": 1,
-                    "value": ""
-                }
-            ]
+                {"type": "X", "size": 5, "value": 50},
+                {"type": "X", "size": 3, "value": "a"},
+                {"type": "X", "size": 5, "value": ""},
+                {"type": "X", "size": 1, "value": ""},
+            ],
         )
 
     def test_service_address_street_address(self):
-        item = record.StreetAddress(street_name="FAKE", street_type="RD", street_suffix="N")
+        item = record.StreetAddress(
+            street_name="FAKE", street_type="RD", street_suffix="N"
+        )
 
         records = item.get_records()
 
@@ -346,37 +240,13 @@ class IpndTransactionEntryTests(BaseTests):
         self.assertListEqual(
             result,
             [
-                {
-                    "type": "X",
-                    "size": 25,
-                    "value": "FAKE"
-                },
-                {
-                    "type": "X",
-                    "size": 8,
-                    "value": "RD"
-                },
-                {
-                    "type": "X",
-                    "size": 6,
-                    "value": "N"
-                },
-                {
-                    "type": "X",
-                    "size": 25,
-                    "value": ""
-                },
-                {
-                    "type": "X",
-                    "size": 4,
-                    "value": ""
-                },
-                {
-                    "type": "X",
-                    "size": 2,
-                    "value": ""
-                }
-            ]
+                {"type": "X", "size": 25, "value": "FAKE"},
+                {"type": "X", "size": 8, "value": "RD"},
+                {"type": "X", "size": 6, "value": "N"},
+                {"type": "X", "size": 25, "value": ""},
+                {"type": "X", "size": 4, "value": ""},
+                {"type": "X", "size": 2, "value": ""},
+            ],
         )
 
     def test_service_address_locality(self):
@@ -394,22 +264,10 @@ class IpndTransactionEntryTests(BaseTests):
         self.assertListEqual(
             result,
             [
-                {
-                    "type": "X",
-                    "size": 3,
-                    "value": "ACT"
-                },
-                {
-                    "type": "X",
-                    "size": 40,
-                    "value": "ANU"
-                },
-                {
-                    "type": "N",
-                    "size": 4,
-                    "value": "0200"
-                }
-            ]
+                {"type": "X", "size": 3, "value": "ACT"},
+                {"type": "X", "size": 40, "value": "ANU"},
+                {"type": "N", "size": 4, "value": "0200"},
+            ],
         )
 
 
@@ -430,57 +288,27 @@ class IpndTransactionServiceAddressTests(BaseTests):
 
         self.assertIsInstance(records[0], record.BuildingSubUnit)
 
-        self.assertListEqual(records[0].generate_as_dict(),
-                             [
-                                 {
-                                     "type": "X",
-                                     "size": 6,
-                                     "value": ""
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 5,
-                                     "value": ""
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 1,
-                                     "value": ""
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 5,
-                                     "value": ""
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 1,
-                                     "value": ""
-                                 }
-                             ]
-                             )
+        self.assertListEqual(
+            records[0].generate_as_dict(),
+            [
+                {"type": "X", "size": 6, "value": ""},
+                {"type": "X", "size": 5, "value": ""},
+                {"type": "X", "size": 1, "value": ""},
+                {"type": "X", "size": 5, "value": ""},
+                {"type": "X", "size": 1, "value": ""},
+            ],
+        )
 
         self.assertIsInstance(records[1], record.BuildingFloor)
 
-        self.assertListEqual(records[1].generate_as_dict(),
-                             [
-                                 {
-                                     "type": "X",
-                                     "size": 2,
-                                     "value": ""
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 4,
-                                     "value": ""
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 1,
-                                     "value": ""
-                                 }
-                             ]
-                             )
+        self.assertListEqual(
+            records[1].generate_as_dict(),
+            [
+                {"type": "X", "size": 2, "value": ""},
+                {"type": "X", "size": 4, "value": ""},
+                {"type": "X", "size": 1, "value": ""},
+            ],
+        )
 
         self.assertIsInstance(records[2], record.BuildingProperty)
 
@@ -492,91 +320,42 @@ class IpndTransactionServiceAddressTests(BaseTests):
 
         self.assertIsInstance(records[4], record.HouseNumberSubunit)
 
-        self.assertListEqual(records[4].generate_as_dict(),
-                             [
-                                 {
-                                     "type": "X",
-                                     "size": 5,
-                                     "value": 1
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 3,
-                                     "value": ""
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 5,
-                                     "value": ""
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 1,
-                                     "value": ""
-                                 }
-                             ]
-                             )
+        self.assertListEqual(
+            records[4].generate_as_dict(),
+            [
+                {"type": "X", "size": 5, "value": 1},
+                {"type": "X", "size": 3, "value": ""},
+                {"type": "X", "size": 5, "value": ""},
+                {"type": "X", "size": 1, "value": ""},
+            ],
+        )
 
         self.assertIsInstance(records[5], record.StreetAddress)
 
-        self.assertListEqual(records[5].generate_as_dict(),
-                             [
-                                 {
-                                     "type": "X",
-                                     "size": 25,
-                                     "value": "FAKE"
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 8,
-                                     "value": "ST"
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 6,
-                                     "value": ""
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 25,
-                                     "value": ""
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 4,
-                                     "value": ""
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 2,
-                                     "value": ""
-                                 }
-                             ]
-                             )
+        self.assertListEqual(
+            records[5].generate_as_dict(),
+            [
+                {"type": "X", "size": 25, "value": "FAKE"},
+                {"type": "X", "size": 8, "value": "ST"},
+                {"type": "X", "size": 6, "value": ""},
+                {"type": "X", "size": 25, "value": ""},
+                {"type": "X", "size": 4, "value": ""},
+                {"type": "X", "size": 2, "value": ""},
+            ],
+        )
 
         self.assertIsInstance(records[6], record.ServiceLocality)
 
         pprint.pprint(records[6].generate_as_dict())
 
-        self.assertListEqual(records[6].generate_as_dict(),
-                             [
-                                 {
-                                     "type": "X",
-                                     "size": 3,
-                                     "value": "ACT"
-                                 },
-                                 {
-                                     "type": "X",
-                                     "size": 40,
-                                     "value": "ANU"
-                                 },
-                                 {
-                                     "type": "N",
-                                     "size": 4,
-                                     "value": "0200"
-                                 }
-                             ]
-                             )
+        self.assertListEqual(
+            records[6].generate_as_dict(),
+            [
+                {"type": "X", "size": 3, "value": "ACT"},
+                {"type": "X", "size": 40, "value": "ANU"},
+                {"type": "N", "size": 4, "value": "0200"},
+            ],
+        )
 
         records = record.BaseRecord.flatten(records)
 
@@ -587,7 +366,6 @@ class IpndTransactionServiceAddressTests(BaseTests):
 
 
 class IpndBaseTests(BaseTests):
-
     def get_date(self):
         # 2020-01-01 00:00
         return datetime.utcfromtimestamp(1577836800)
@@ -612,37 +390,13 @@ class IpndHeaderFooterTests(IpndBaseTests):
         self.assertListEqual(
             result,
             [
-                {
-                    "type": "X",
-                    "size": 3,
-                    "value": "HDR"
-                },
-                {
-                    "type": "X",
-                    "size": 6,
-                    "value": "IPNDUP"
-                },
-                {
-                    "type": "X",
-                    "size": 5,
-                    "value": "XXXXX"
-                },
-                {
-                    "type": "N",
-                    "size": 7,
-                    "value": 2
-                },
-                {
-                    "type": "N",
-                    "size": 14,
-                    "value": "20200101000000"
-                },
-                {
-                    "type": "X",
-                    "size": 870,
-                    "value": ""
-                }
-            ]
+                {"type": "X", "size": 3, "value": "HDR"},
+                {"type": "X", "size": 6, "value": "IPNDUP"},
+                {"type": "X", "size": 5, "value": "XXXXX"},
+                {"type": "N", "size": 7, "value": 2},
+                {"type": "N", "size": 14, "value": "20200101000000"},
+                {"type": "X", "size": 870, "value": ""},
+            ],
         )
 
         output = "".join(item.generate())
@@ -668,32 +422,12 @@ class IpndHeaderFooterTests(IpndBaseTests):
         self.assertListEqual(
             result,
             [
-                {
-                    "type": "X",
-                    "size": 3,
-                    "value": "TRL"
-                },
-                {
-                    "type": "N",
-                    "size": 7,
-                    "value": 2
-                },
-                {
-                    "type": "N",
-                    "size": 14,
-                    "value": "20200101000000"
-                },
-                {
-                    "type": "N",
-                    "size": 7,
-                    "value": 3
-                },
-                {
-                    "type": "X",
-                    "size": 874,
-                    "value": ""
-                }
-            ]
+                {"type": "X", "size": 3, "value": "TRL"},
+                {"type": "N", "size": 7, "value": 2},
+                {"type": "N", "size": 14, "value": "20200101000000"},
+                {"type": "N", "size": 7, "value": 3},
+                {"type": "X", "size": 874, "value": ""},
+            ],
         )
 
         output = "".join(item.generate())
@@ -722,7 +456,9 @@ class IpndTransactionTests(IpndBaseTests):
 
     def get_business(self):
         business = record.Business()
-        business.set_name("Extremely Long Name Pty Ltd, Trading as Stupidly Long Name Incorporated")
+        business.set_name(
+            "Extremely Long Name Pty Ltd, Trading as Stupidly Long Name Incorporated"
+        )
         business.set_contactnum("0402000000")
 
         return business
@@ -785,83 +521,94 @@ class IpndTransactionTests(IpndBaseTests):
         # CustomerName (multi)
         customer_name = [r.format() for r in records[4].get_records()]
 
-        self.assertEqual(customer_name,
-                         [
-                             "Derpinson                               ",
-                             "Herp L.                                                                                                                 ",
-                             "Mr          ",
-                         ])
+        self.assertEqual(
+            customer_name,
+            [
+                "Derpinson                               ",
+                "Herp L.                                                                                                                 ",
+                "Mr          ",
+            ],
+        )
 
         # FindingName (multi)
         finding_name = [r.format() for r in records[5].get_records()]
 
-        self.assertEqual(finding_name,
-                         [
-                             "Derpinson                               ",
-                             "Herp                                    ",
-                             "Mr          ",
-                         ])
+        self.assertEqual(
+            finding_name,
+            [
+                "Derpinson                               ",
+                "Herp                                    ",
+                "Mr          ",
+            ],
+        )
 
         # ServiceAddress (multi)
-        service_address = [r.format() for r in record.BaseRecord.flatten(records[6].get_records())]
+        service_address = [
+            r.format() for r in record.BaseRecord.flatten(records[6].get_records())
+        ]
 
-        self.assertListEqual(service_address,
-                             [
-                                 "      ",
-                                 "     ",
-                                 " ",
-                                 "     ",
-                                 " ",
-                                 "  ",
-                                 "    ",
-                                 " ",
-                                 "                                        ",
-                                 "                              ",
-                                 "1    ",
-                                 "   ",
-                                 "     ",
-                                 " ",
-                                 "FAKE                     ",
-                                 "ST      ",
-                                 "      ",
-                                 "                         ",
-                                 "    ",
-                                 "  ",
-                                 "ACT",
-                                 "ANU                                     ",
-                                 "0200",
-                             ]
-                             )
+        self.assertListEqual(
+            service_address,
+            [
+                "      ",
+                "     ",
+                " ",
+                "     ",
+                " ",
+                "  ",
+                "    ",
+                " ",
+                "                                        ",
+                "                              ",
+                "1    ",
+                "   ",
+                "     ",
+                " ",
+                "FAKE                     ",
+                "ST      ",
+                "      ",
+                "                         ",
+                "    ",
+                "  ",
+                "ACT",
+                "ANU                                     ",
+                "0200",
+            ],
+        )
 
         # DirectoryAddress (multi)
-        directory_address = [r.format() for r in record.BaseRecord.flatten(records[7].get_records())]
+        directory_address = [
+            r.format() for r in record.BaseRecord.flatten(records[7].get_records())
+        ]
 
-        self.assertListEqual(directory_address,
-                             [
-                                 "      ",
-                                 "     ",
-                                 " ",
-                                 "     ",
-                                 " ",
-                                 "  ",
-                                 "    ",
-                                 " ",
-                                 "                                        ",
-                                 "                              ",
-                                 "1    ",
-                                 "   ",
-                                 "     ",
-                                 " ",
-                                 "FAKE                     ",
-                                 "ST      ",
-                                 "      ",
-                                 "                         ",
-                                 "    ",
-                                 "  ",
-                                 "ACT",
-                                 "ANU                                     ",
-                                 "0200",
-                             ])
+        self.assertListEqual(
+            directory_address,
+            [
+                "      ",
+                "     ",
+                " ",
+                "     ",
+                " ",
+                "  ",
+                "    ",
+                " ",
+                "                                        ",
+                "                              ",
+                "1    ",
+                "   ",
+                "     ",
+                " ",
+                "FAKE                     ",
+                "ST      ",
+                "      ",
+                "                         ",
+                "    ",
+                "  ",
+                "ACT",
+                "ANU                                     ",
+                "0200",
+            ],
+        )
 
         # ListCode
         self.assertEqual(records[8].format(), "UL")
@@ -873,14 +620,18 @@ class IpndTransactionTests(IpndBaseTests):
         self.assertEqual(records[10].format(), "     ")
 
         # CustomerContact (multi)
-        customer_contact = [r.format() for r in record.BaseRecord.flatten(records[11].get_records())]
+        customer_contact = [
+            r.format() for r in record.BaseRecord.flatten(records[11].get_records())
+        ]
 
-        self.assertListEqual(customer_contact,
-                             [
-                                 "Derpinson                               ",
-                                 "Herp                                    ",
-                                 "0402000000          ",
-                             ])
+        self.assertListEqual(
+            customer_contact,
+            [
+                "Derpinson                               ",
+                "Herp                                    ",
+                "0402000000          ",
+            ],
+        )
 
         # CSPCode
         self.assertEqual(records[12].format(), "999")
