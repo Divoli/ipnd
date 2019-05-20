@@ -1,13 +1,15 @@
 from ipnd import record
+from typing import List
+from datetime import datetime
 
 
 class IPND:
-    def __init__(self, source: str, seq: int, count: int = None, date=None):
+    def __init__(self, source: str, seq: int, count: int = None, date: datetime = None):
         self.source = source
         self.seq = seq
         self.count = count
         self.date = date
-        self.transactions = []
+        self.transactions: List[record.Transaction] = []
 
     def add_transaction(self, transaction: record.Transaction):
         self.transactions.append(transaction)

@@ -1,6 +1,7 @@
 import re
 from datetime import datetime
 from .utils import flatten
+from typing import List
 
 
 class ValidationError(Exception):
@@ -8,56 +9,46 @@ class ValidationError(Exception):
 
 
 class BaseRecord:
-    size = None
+    SIZE: int = -1
+    value: str
 
     @classmethod
-    def flatten(cls, records):
+    def flatten(cls, records: List):
         """
         Flatten child (and grandchild) records
         :param records:
         """
-        items = [
-            [
-                r.get_records() if isinstance(r, MultipleRecord) else r
-                for r in record.get_records()
-            ]
-            if isinstance(record, MultipleRecord)
-            else [record]
-            for record in records
-        ]
+        items = [[r.get_records() for r in record.get_records()] for record in records]
 
         return list(flatten(items))
 
     def generate_as_dict(self):
-        records = self.flatten(
-            self.get_records() if isinstance(self, MultipleRecord) else [self]
-        )
+        records = self.flatten(self.get_records())
 
         return [record.format_as_dict() for record in records]
 
     def format_as_dict(self):
-        return {
-            "type": "N" if isinstance(self, NumericRecord) else "X",
-            "size": self.size,
-            "value": self.value,
-        }
+        return {"type": self.TYPE, "size": self.SIZE, "value": self.value}
 
     def generate(self):
-        records = self.flatten(
-            self.get_records() if isinstance(self, MultipleRecord) else [self]
-        )
+        records = self.flatten(self.get_records())
 
         return [record.format() for record in records]
 
+    def get_records(self):
+        return [self]
+
 
 class NumericRecord:
-    def format(self):
-        output = str(self.value).rjust(self.size, "0")
+    TYPE = "N"
 
-        if len(output) > self.size:
+    def format(self):
+        output = str(self.value).rjust(self.SIZE, "0")
+
+        if len(output) > self.SIZE:
             raise Exception(
                 "{} Col is larger than size - {} > {} for {}".format(
-                    self, len(output), self.size, self.value
+                    self, len(output), self.SIZE, self.value
                 )
             )
 
@@ -65,12 +56,14 @@ class NumericRecord:
 
 
 class AlphaRecord:
+    TYPE = "X"
+
     def format(self):
-        return str(self.value)[0 : self.size].ljust(self.size, " ")
+        return str(self.value)[0 : self.SIZE].ljust(self.SIZE, " ")
 
 
 class SingleRecord(BaseRecord):
-    size: int = None
+    SIZE: int = -1
 
     def __init__(self, value=None):
         self.value = value if value else ""
@@ -81,12 +74,25 @@ class MultipleRecord(SingleRecord):
         raise NotImplementedError()
 
 
+class ValidEnum:
+    def __init__(self, value=None):
+
+        if value:
+            if value not in self.ENUM:
+                raise ValidationError(
+                    "Invalid {}: {}".format(self.__class__.__name__, value)
+                )
+            self.value = value
+        else:
+            self.value = ""
+
+
 class PublicNumber(SingleRecord, AlphaRecord):
-    size = 20
+    SIZE: int = 20
 
 
 class ServiceStatusCode(SingleRecord, AlphaRecord):
-    size = 1
+    SIZE: int = 1
 
     def __init__(self, value=None):
         if value not in ["C", "D"]:
@@ -96,39 +102,39 @@ class ServiceStatusCode(SingleRecord, AlphaRecord):
 
 
 class UsageCode(SingleRecord, AlphaRecord):
-    size = 1
+    SIZE: int = 1
 
 
 class PendingFlag(SingleRecord, AlphaRecord):
-    size = 1
+    SIZE: int = 1
 
 
 class CancelPendingFlag(SingleRecord, AlphaRecord):
-    size = 1
+    SIZE: int = 1
 
 
 class CustomerSurnameRecord(SingleRecord, AlphaRecord):
-    size = 40
+    SIZE: int = 40
 
 
 class CustomerFirstnameRecord(SingleRecord, AlphaRecord):
-    size = 40
+    SIZE: int = 40
 
 
 class CustomerFirstLongNameRecord(SingleRecord, AlphaRecord):
-    size = 120
+    SIZE: int = 120
 
 
 class CustomerTitleRecord(SingleRecord, AlphaRecord):
-    size = 12
+    SIZE: int = 12
 
 
 class CustomerRawnameRecord(SingleRecord, AlphaRecord):
-    size = 160
+    SIZE: int = 160
 
 
 class CustomerContactNum(SingleRecord, AlphaRecord):
-    size = 20
+    SIZE: int = 20
 
 
 class CustomerName(MultipleRecord):
@@ -150,20 +156,68 @@ class CustomerName(MultipleRecord):
         ]
 
 
-class BuildingType(SingleRecord, AlphaRecord):
-    size = 6
+class BuildingType(ValidEnum, SingleRecord, AlphaRecord):
+    SIZE: int = 6
 
-    def __init__(self, value=None):
-        # todo: validate
-        self.value = value if value else ""
+    ENUM = {
+        "ANT": "Antenna",
+        "APT": "Apartment",
+        "ATM": "Automated Teller Machine",
+        "BBQ": "Barbecue",
+        "BTSD": "Boatshed",
+        "BLDG": "Building",
+        "BNGW": "Bungalow",
+        "CAGE": "Cage",
+        "CARP": "Carpark",
+        "CARS": "Carspace",
+        "CLUB": "Club",
+        "COOL": "Coolroom",
+        "CTGE": "Cottage",
+        "DUPL": "Duplex",
+        "FCTY": "Factory",
+        "FLAT": "Flat",
+        "GRGE": "Garage",
+        "HALL": "Hall",
+        "HSE": "House",
+        "KSK": "Kiosk",
+        "LSE": "Lease",
+        "LBBY": "Lobby",
+        "LOFT": "Loft",
+        "LOT": "Lot",
+        "MSNT": "Maisonette",
+        "MBTH": "Marine Berth",
+        "OFFC": "Office",
+        "RESV": "Reserve",
+        "ROOM": "Room",
+        "SHED": "Shed",
+        "SHOP": "Shop",
+        "SHRM": "Showroom",
+        "SIGN": "Sign",
+        "SITE": "Site",
+        "STLL": "Stall",
+        "STOR": "Store",
+        "STR": "Strata unit",
+        "STU": "Studio/studio apartment",
+        "SUBS": "Substation",
+        "SE": "Suite",
+        "TNCY": "Tenancy",
+        "TWR": "Tower",
+        "TNHS": "Townhouse",
+        "UNIT": "Unit",
+        "VLT": "Vault",
+        "VLLA": "Villa",
+        "WARD": "Ward",
+        "WHSE": "Warehouse",
+        "WKSH": "Workshop",
+    }
 
 
 class BuildingNum(SingleRecord, AlphaRecord):
-    size = 5
+    SIZE: int = 5
 
 
 class BuildingSuffix(SingleRecord, AlphaRecord):
-    size = 1
+    SIZE: int = 1
 
 
 class NumAndSuffixMixin:
@@ -183,17 +237,17 @@ class NumAndSuffixMixin:
 
 
 class BuildingSubUnit(MultipleRecord, NumAndSuffixMixin):
-    def __init__(self, building_type=None, street_no_start=None, street_no_end=None):
+    def __init__(self, building_type=None, street_no=None, street_no_secondary=None):
         self.building_type = BuildingType(value=building_type)
 
-        num, suffix = self.get_num_and_suffix(street_no_start)
+        num, suffix = self.get_num_and_suffix(street_no)
 
         self.building_num_1, self.building_suffix_1 = (
             BuildingNum(num),
             BuildingSuffix(suffix),
         )
 
-        num, suffix = self.get_num_and_suffix(street_no_end)
+        num, suffix = self.get_num_and_suffix(street_no_secondary)
 
         self.building_num_2, self.building_suffix_2 = (
             BuildingNum(num),
@@ -211,24 +265,24 @@ class BuildingSubUnit(MultipleRecord, NumAndSuffixMixin):
 
 
 class HouseNum(SingleRecord, AlphaRecord):
-    size = 5
+    SIZE: int = 5
 
 
 class HouseSuffix(SingleRecord, AlphaRecord):
-    size = 3
+    SIZE: int = 3
 
 
 class HouseSuffixSecondary(SingleRecord, AlphaRecord):
-    size = 1
+    SIZE: int = 1
 
 
 class HouseNumberSubunit(MultipleRecord, NumAndSuffixMixin):
-    def __init__(self, house_no=None, secondary_no=None):
+    def __init__(self, house_no=None, house_no_secondary=None):
         num, suffix = self.get_num_and_suffix(house_no)
 
         self.house_num_1, self.house_suffix_1 = HouseNum(num), HouseSuffix(suffix)
 
-        num, suffix = self.get_num_and_suffix(secondary_no)
+        num, suffix = self.get_num_and_suffix(house_no_secondary)
 
         self.house_num_2, self.house_suffix_2 = (
             HouseNum(num),
@@ -244,12 +298,29 @@ class HouseNumberSubunit(MultipleRecord, NumAndSuffixMixin):
         ]
 
 
-class BuildingFloorType(SingleRecord, AlphaRecord):
-    size = 2
+class BuildingFloorType(ValidEnum, SingleRecord, AlphaRecord):
+    SIZE: int = 2
+
+    ENUM = {
+        "B": "Basement",
+        "FL": "Floor",
+        "G": "Ground",
+        "L": "Level",
+        "LG": "Lower ground floor",
+        "M": "Mezzanine",
+        "OD": "Observation deck",
+        "P": "Parking",
+        "PT": "Penthouse",
+        "PL": "Platform",
+        "PD": "Podium",
+        "RT": "Rooftop",
+        "SB": "Sub-basement",
+        "UG": "Upper ground floor",
+    }
 
 
 class BuildingFloorNr(SingleRecord, AlphaRecord):
-    size = 4
+    SIZE: int = 4
 
     def __init__(self, value=None):
 
@@ -261,11 +332,11 @@ class BuildingFloorNr(SingleRecord, AlphaRecord):
 
 
 class BuildingFloorSuffix(SingleRecord, AlphaRecord):
-    size = 1
+    SIZE: int = 1
 
 
 class BuildingFloor(MultipleRecord):
-    def __init__(self, floor=None, floor_type="FL"):
+    def __init__(self, floor: str = None, floor_type="FL"):
 
         if not floor:
             self.floor_type = BuildingFloorType()
@@ -290,31 +361,46 @@ class BuildingFloor(MultipleRecord):
 
 
 class BuildingProperty(SingleRecord, AlphaRecord):
-    size = 40
+    SIZE: int = 40
 
 
 class BuildingLocation(SingleRecord, AlphaRecord):
-    size = 30
+    SIZE: int = 30
 
 
 class StreetName(SingleRecord, AlphaRecord):
-    size = 25
+    SIZE: int = 25
 
 
 class StreetType(SingleRecord, AlphaRecord):
-    size = 8
+    SIZE: int = 8
 
 
-class StreetTypeSecondary(SingleRecord, AlphaRecord):
-    size = 4
+class StreetTypeSecondary(StreetType):
+    SIZE: int = 4
 
 
-class StreetSuffix(SingleRecord, AlphaRecord):
-    size = 6
+class StreetSuffix(ValidEnum, SingleRecord, AlphaRecord):
+    SIZE: int = 6
+
+    ENUM = {
+        "CN": "Central",
+        "E": "East",
+        "EX": "Extension",
+        "LR": "Lower",
+        "N": "North",
+        "NE": "North East",
+        "NW": "North West",
+        "S": "South",
+        "SE": "South East",
+        "SW": "South West",
+        "UP": "Upper",
+        "W": "West",
+    }
 
 
-class StreetSuffixSecondary(SingleRecord, AlphaRecord):
-    size = 2
+class StreetSuffixSecondary(StreetSuffix):
+    SIZE: int = 2
 
 
 class StreetAddress(MultipleRecord):
@@ -340,15 +426,15 @@ class StreetAddress(MultipleRecord):
 
 
 class State(SingleRecord, AlphaRecord):
-    size = 3
+    SIZE: int = 3
 
 
 class Locality(SingleRecord, AlphaRecord):
-    size = 40
+    SIZE: int = 40
 
 
 class Postcode(SingleRecord, NumericRecord):
-    size = 4
+    SIZE: int = 4
 
 
 class ServiceLocality(MultipleRecord):
@@ -423,15 +509,15 @@ class ServiceAddress(BaseAddress):
 
 
 class CustomFirstName(SingleRecord, AlphaRecord):
-    size = 40
+    SIZE: int = 40
 
 
 class BusinessRawnameRecord(SingleRecord, AlphaRecord):
-    size = 80
+    SIZE: int = 80
 
 
 class FindingTitle(SingleRecord, AlphaRecord):
-    size = 12
+    SIZE: int = 12
 
 
 class FindingName(MultipleRecord):
@@ -451,13 +537,13 @@ class FindingName(MultipleRecord):
 
 
 class ListCode(SingleRecord, AlphaRecord):
-    size = 2
+    SIZE: int = 2
 
     # todo: validation
 
 
 class TypeOfService(SingleRecord, AlphaRecord):
-    size: int = 5
+    SIZE: int = 5
 
     # todo: validation
 
@@ -475,21 +561,21 @@ class CustomerContact(MultipleRecord):
 
 
 class CSPCode(SingleRecord, AlphaRecord):
-    size: int = 3
+    SIZE: int = 3
 
     def __init__(self, value):
         self.value = value
 
 
 class DPCode(SingleRecord, AlphaRecord):
-    size: int = 6
+    SIZE: int = 6
 
     def __init__(self, value):
         self.value = value
 
 
 class DateRecord(SingleRecord, NumericRecord):
-    size: int = 14
+    SIZE: int = 14
 
     def __init__(self, value=None):
         value = value if value else datetime.now()
@@ -506,14 +592,14 @@ class ServiceStatusDate(DateRecord):
 
 
 class AlternateAddressFlag(SingleRecord, NumericRecord):
-    size: int = 1
+    SIZE: int = 1
 
     def __init__(self, value="N"):
         super().__init__(value=value)
 
 
 class PriorPublicNumber(SingleRecord, AlphaRecord):
-    size: int = 20
+    SIZE: int = 20
 
 
 class Entity:
@@ -602,33 +688,33 @@ class HeaderFooterBase:
 
 
 class Hdr(SingleRecord, AlphaRecord):
-    size = 3
+    SIZE: int = 3
 
     def __init__(self):
         self.value = "HDR"
 
 
 class IdnpUp(SingleRecord, AlphaRecord):
-    size = 6
+    SIZE: int = 6
 
     def __init__(self):
         self.value = "IPNDUP"
 
 
 class Source(SingleRecord, AlphaRecord):
-    size = 5
+    SIZE: int = 5
 
 
 class Sequence(SingleRecord, NumericRecord):
-    size = 7
+    SIZE: int = 7
 
 
 class Date(SingleRecord, NumericRecord):
-    size = 14
+    SIZE: int = 14
 
 
 class HeaderPad(SingleRecord, AlphaRecord):
-    size = 870
+    SIZE: int = 870
 
 
 class Header(HeaderFooterBase, MultipleRecord):
@@ -644,18 +730,18 @@ class Header(HeaderFooterBase, MultipleRecord):
 
 
 class Trl(SingleRecord, AlphaRecord):
-    size = 3
+    SIZE: int = 3
 
     def __init__(self):
         self.value = "TRL"
 
 
 class Count(SingleRecord, NumericRecord):
-    size = 7
+    SIZE: int = 7
 
 
 class FooterPad(SingleRecord, AlphaRecord):
-    size = 874
+    SIZE: int = 874
 
 
 class Footer(HeaderFooterBase, MultipleRecord):

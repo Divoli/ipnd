@@ -11,6 +11,7 @@ htmlcov/
 .idea
 .pytest_cache/
 .tox
+.mypy_cache/
 
 notes.txt
 release.sh

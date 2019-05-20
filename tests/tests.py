@@ -35,6 +35,39 @@ class IpndEntityTests(BaseTests):
         self.assertEqual(model.get_code(), "B")
 
 
+class IpndValidationTests(BaseTests):
+    """
+    IPND Validation Tests
+    """
+
+    def test_street_suffix(self):
+        with self.assertRaises(record.ValidationError) as context:
+
+            record.StreetSuffix("X")
+
+        self.assertEqual(str(context.exception), "Invalid StreetSuffix: X")
+
+        record.StreetSuffix("N")
+
+    def test_building_type(self):
+        with self.assertRaises(record.ValidationError) as context:
+
+            record.BuildingType("X")
+
+        self.assertEqual(str(context.exception), "Invalid BuildingType: X")
+
+        record.BuildingType("BLDG")
+
+    def test_building_floor_type(self):
+        with self.assertRaises(record.ValidationError) as context:
+
+            record.BuildingFloorType("X")
+
+        self.assertEqual(str(context.exception), "Invalid BuildingFloorType: X")
+
+        record.BuildingFloorType("B")
+
+
 class IpndTransactionEntryTests(BaseTests):
     """
     IPND Transaction Entry Tests
@@ -114,7 +147,7 @@ class IpndTransactionEntryTests(BaseTests):
 
     def test_service_address_building_subunit(self):
         item = record.BuildingSubUnit(
-            building_type="APT", street_no_start="50a", street_no_end="100"
+            building_type="APT", street_no="50a", street_no_secondary="100"
         )
 
         records = item.get_records()
