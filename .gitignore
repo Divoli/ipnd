@@ -1,0 +1,14 @@
+*.egg-info
+*.pyc
+build/
+dist/
+.env
+__pycache__
+.coverage
+.DS_Store
+htmlcov/
+.cache/
+.idea
+.pytest_cache/
+
+notes.txt
